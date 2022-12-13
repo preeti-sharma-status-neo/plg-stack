@@ -1,0 +1,71 @@
+loki:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+  persistence:
+    enabled: true
+    storageClassName: monitoring-stack-volume
+    size: 4Gi
+  isDefault: true
+  url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
+  ## no modification required
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+  datasource:
+    jsonData: {}
+    uid: ""
+
+promtail:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+  config:
+    logLevel: info
+    serverPort: 3101
+    clients:
+      - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
+      ## no modification required
+
+grafana:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+  image:
+    tag: 8.3.4
+  persistence:
+    enabled: true
+    storageClassName: monitoring-stack-volume
+    size: 4Gi
+  service:
+    type: NodePort
+    nodePort: 30001
+  extraSecretMounts:
+    - name: secrets-store-inline
+      mountPath: /run/secrets
+      readOnly: true
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+        secretProviderClass: "grafana-azure-ad-vault-integration"
+  grafana.ini:
+    server:
+      root_url:  https://{{{ please_fill_in_private_dns }}}/grafana/
+      serve_from_sub_path: true
+    auth.azuread:
+        enabled: true
+        allow_sign_up: true
+        client_id: $__file{/run/secrets/grafana-azure-ad-client-id}
+        client_secret: $__file{/run/secrets/grafana-azure-ad-client-secret}
+        name: Azure AD
+        auth_url: https://login.microsoftonline.com/{{{ please_fill_in_tenant_id }}}/oauth2/v2.0/authorize
+        token_url: https://login.microsoftonline.com/{{{ please_fill_in_tenant_id }}}/oauth2/v2.0/token
+        allowed_domains: {{{ please_fill_in_email_ids_domain }}}

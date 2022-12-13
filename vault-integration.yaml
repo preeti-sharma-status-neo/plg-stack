@@ -1,0 +1,24 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: grafana-azure-ad-vault-integration
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"    # Set to true for using managed 
+identity
+    userAssignedIdentityID: "{{{ fill_in_identity_id}}}"    
+    keyvaultName: grafana-azure-ad
+    cloudName: "AzurePublicCloud"
+    objects:  |
+      array:
+        - |
+          objectName: grafana-azure-ad-client-id
+          objectType: secret        
+          objectVersion: ""         
+        - |
+          objectName: grafana-azure-ad-client-secret
+          objectType: secret
+          objectVersion: ""
+    tenantId: {{{ please_fill_in_azure_tenant_id }}}
