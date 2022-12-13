@@ -58,7 +58,7 @@ grafana:
         secretProviderClass: "grafana-azure-ad-vault-integration"
   grafana.ini:
     server:
-      root_url:  https://{{{ please_fill_in_private_dns }}}/grafana/
+      root_url:  https://{{{ please_fill_in_public_dns }}}/grafana/
       serve_from_sub_path: true
     auth.azuread:
         enabled: true
