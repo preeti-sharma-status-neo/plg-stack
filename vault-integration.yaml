@@ -6,8 +6,7 @@ spec:
   provider: azure
   parameters:
     usePodIdentity: "false"
-    useVMManagedIdentity: "true"    # Set to true for using managed 
-identity
+    useVMManagedIdentity: "true"    # Set to true for using managed identity
     userAssignedIdentityID: "{{{ fill_in_identity_id}}}"    
     keyvaultName: grafana-azure-ad
     cloudName: "AzurePublicCloud"
